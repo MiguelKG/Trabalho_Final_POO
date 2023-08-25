@@ -37,10 +37,14 @@ public class Board {
         Monster monster;
                 
         for ( int i = 0; i <= maxY; i++ ) {
+            
             System.out.print( "  " );
             for ( int i2 = 0; i2 <= maxX; i2++ ) {
-                
                 tile = this.grid[ i ][ i2 ];
+                
+                if ( tile.isVisible() == false ) {
+                    System.out.print( "#" );
+                } else
                 if ( tile.hasMonster() ) {
                     piece = tile.getPieces().stream()
                         .filter( x -> x.getType() ==  PieceType.MONSTER )

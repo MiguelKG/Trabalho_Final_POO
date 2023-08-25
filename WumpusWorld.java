@@ -4,8 +4,6 @@
  */
 package WumpusWorld;
 
-import WumpusWorld.Board;
-
 /**
  *
  * @author Miguel-KG
@@ -18,7 +16,7 @@ public class WumpusWorld {
     public static void main(String[] args) {
         GameSystem game = new GameSystem();
         game.setup();
-        game.start();
+        game.run();
     }
     
 }

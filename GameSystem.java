@@ -32,6 +32,7 @@ public class GameSystem {
         Monster monster;
         
         board.grid[ board.maxY ][ 0 ].addPiece( player );
+        board.grid[ board.maxY ][ 0 ].setVisible( true );
         
         for ( int i = 0; i < 5; i++ ) {
             element = new GameElement( "Pit", PieceType.HAZARD, 'P' );
@@ -55,26 +56,62 @@ public class GameSystem {
         createStartPosition( monster );
     }
     
-    public void start() {
+    public void run() {
         int op;
-        
-        board.print();
-        
-        System.out.println(
+        do {
+            board.print();
+
+            System.out.println(
                 "1 - Andar para cima\n"
                 + "2 - Andar para baixo\n"
                 + "3 - Andar para esquerda\n"
                 + "4 - Andar para direita\n"
                 + "5 - Usar lanterna\n"
                 + "6 - Disparar flecha\n"
+                + "10 - Sair do jogo\n"
                 + "Digite o número do que deseja fazer"
-        );
-        
-        op = entry.nextInt();
-        
-        if ( op >= 1 && op <= 4 ) {
-            move ( op );
-        }
+            );
+
+            op = entry.nextInt();
+
+            if ( op >= 1 && op <= 4 ) {
+                move ( player, op );
+            } else
+            if ( op == 5 ) {
+                do {
+                    System.out.println(
+                        "Iluminar em qual direção?\n"
+                        + "1 - Cima\n"
+                        + "2 - Baixo\n"
+                        + "3 - Esquerda\n"
+                        + "4 - Direita\n"
+                    );
+                    op = entry.nextInt();
+                    if ( op < 1 || op > 4 ){
+                        System.out.println( "Valor inválido" );
+                    } else {
+                        player.useFlashlight( board, op );
+                    }
+                } while ( op < 1 || op > 4 );
+            } else
+            if ( op == 6 ) { // Incompleto
+                do {
+                    System.out.println(
+                        "Disparar em qual direção?\n"
+                        + "1 - Cima\n"
+                        + "2 - Baixo\n"
+                        + "3 - Esquerda\n"
+                        + "4 - Direita\n"
+                    );
+                    op = entry.nextInt();
+                    if ( op < 1 || op > 4 ){
+                        System.out.println( "Valor inválido" );
+                    } else {
+                        player.useArrow( board, op );
+                    }
+                } while ( op < 1 || op > 4 );
+            }
+        } while ( op != 10 );
     }
     
     public void move ( GameElement piece, int direction ) {
@@ -86,13 +123,13 @@ public class GameSystem {
         Tile pieceTile = board.grid[ y ][ x ];
         switch ( direction ) {
             case 1: // Cima
-                if ( y < board.maxY ) {
-                    newY++;
+                if ( y > 0 ) {
+                    newY--;
                 }
                 break;
             case 2:
-                if ( y > 0 ) {
-                    newY--;
+                if ( y < board.maxY ) {
+                    newY++;
                 }
                 break;
             case 3:
@@ -107,6 +144,7 @@ public class GameSystem {
                 break;
         }
         board.grid[ y ][ x ].removePiece( piece );
+        if ( piece == player ) board.grid[ newY ][ newX ].setVisible( true );
         board.grid[ newY ][ newX ].addPiece( piece );
     }
     
