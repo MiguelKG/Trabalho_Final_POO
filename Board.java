@@ -4,82 +4,75 @@
  */
 package WumpusWorld;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import wumpusworld.GameElements.*;
+
 /**
  *
  * @author Miguel-KG
  */
 public class Board {
-    private Cell[][] board = new Cell[15][15];
+    public Tile[][] grid;
+    public int maxX;
+    public int maxY;
     
-    public void setup() {
-        for ( int i = 0; i < board.length; i++ ) {
-            for ( int i2 = 0; i2 < board[0].length; i2++ ) {
-                board[ i ][ i2 ] = new Cell();
+    public Board ( int sizeX, int sizeY ) {
+        grid = new Tile[ sizeY ][ sizeX ];
+        
+        for ( int i = 0; i < sizeY; i++ ) {
+            for ( int i2 = 0; i2 < sizeX; i2++ ) {
+                grid[ i ][ i2 ] = new Tile( i2, i );
             }
         }
         
-        Coord coord = new Coord();
-        
-        board[ board.length - 1 ][ 0 ].setPlayer( true );
-        
-        for ( int i = 0; i < 5; i++ ) {
-            coord.createStartCoord( board );
-            board[ coord.y ][ coord.x ].setPit( true );
-        }
-        
-        for ( int i = 0; i < 2; i++ ) {
-            coord.createStartCoordWood( board );
-            board[ coord.y ][ coord.x ].setWood( true );
-        }
-        
-        coord.createStartCoord( board );
-        board[ coord.y ][ coord.x ].setGold( true );
-        
-        coord.createStartCoord( board );
-        board[ coord.y ][ coord.x ].setWumpus( true );
-        
-        coord.createStartCoord( board );
-        board[ coord.y ][ coord.x ].setMonster( true );
+        this.maxY = this.grid.length - 1;
+        this.maxX = this.grid[ 0 ].length - 1;
     }
     
-    public void print() {
-        for ( int i = 0; i < board.length; i++ ) {
-            for ( Cell cell : board[ i ] ){
-                System.out.print( "  " );
+    public void print () {
+        Tile tile;
+        GameElement piece;
+        Monster monster;
                 
-                /*if ( !cell.isVisible() ) {
-                    System.out.print( "#" );
-                } else*/
-                if ( cell.hasPlayer() ) {
-                    System.out.print( 'O' );
+        for ( int i = 0; i <= maxY; i++ ) {
+            System.out.print( "  " );
+            for ( int i2 = 0; i2 <= maxX; i2++ ) {
+                
+                tile = this.grid[ i ][ i2 ];
+                if ( tile.hasMonster() ) {
+                    piece = tile.getPieces().stream()
+                        .filter( x -> x.getType() ==  PieceType.MONSTER )
+                        .findFirst()
+                        .orElse(null);
+                    System.out.print( piece.getIcon() );
+                        
                 } else
-                if ( cell.hasPit() ) {
-                    System.out.print( 'P' );
+                if ( tile.hasPlayer() ) {
+                    System.out.print( "O" );
                 } else
-                if ( cell.hasWumpus() ) {
-                    System.out.print( 'W' );
+                if ( tile.hasHazard() ) {
+                    piece = tile.getPieces().stream()
+                        .filter( x -> x.getType() ==  PieceType.HAZARD )
+                        .findFirst()
+                        .orElse(null);
+                    System.out.print( piece.getIcon() );
+                    
                 } else
-                if ( cell.hasMonster() ) {
-                    System.out.print( 'M' );
-                } else
-                if ( cell.hasGold() ) {
-                    System.out.print( 'G' );
-                } else
-                if ( cell.hasWood() ) {
-                    System.out.print( 'I' );
+                if ( tile.hasItem() ) {
+                    piece = tile.getPieces().stream()
+                        .filter( x -> x.getType() ==  PieceType.ITEM )
+                        .findFirst()
+                        .orElse(null);
+                    System.out.print( piece.getIcon() );
+                    
                 } else {
-                    System.out.print( '*' );
+                    System.out.print("*" );
                 }
+                System.out.print( "  " );
             }
-            System.out.print( "  \n" );
+            System.out.print( "\n" );
         }
-        System.out.print( 
-                "\n"
-                + "Jogador = O\n"
-                + "Ouro = G\n"
-                + "Madeira = I\n"
-                + "Poço = P\n"
-                + "Wumpus = W\n"
-                + "Mostro ??? = M" );
     }
 }
