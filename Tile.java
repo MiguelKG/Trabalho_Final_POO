@@ -60,25 +60,71 @@ public class Tile {
     public void removePiece( GameElement piece ) {
         if ( this.pieces.contains( piece ) ) {
             this.pieces.remove( piece );
+            
+            if ( !this.hasType( piece.getType() ) ) {
+                switch ( piece.getType() ) {
+                    case PLAYER:
+                        this.player = false;
+                        break;
+                    case MONSTER:
+                        this.monster = false;
+                        break;
+                    case ITEM:
+                        this.item = false;
+                        break;
+                    case HAZARD:
+                        this.hazard = false;
+                        break;
+                }
+            }
         }
-        switch ( piece.getType() ) {
-            case PLAYER:
-                this.player = false;
-                break;
-            case MONSTER:
-                this.monster = false;
-                break;
-            case ITEM:
-                this.item = false;
-                break;
-            case HAZARD:
-                this.hazard = false;
-                break;
+    }
+    
+    public GameElement removePieceByType( PieceType type ) {
+        for ( GameElement piece : pieces ) {
+            if ( piece.getType() == type ) {
+                removePiece( piece );
+                return piece;
+            }
         }
+        
+        return null;
     }
     
     public ArrayList<GameElement> getPieces() {
         return this.pieces;
+    }
+    
+    public GameElement getPieceByType( PieceType type ) {
+        for ( GameElement piece : pieces ) {
+            if ( piece.getType() == type ) {
+                return piece;
+            }
+        }
+        
+        return null;
+    }
+    
+    public ArrayList<GameElement> getPiecesByType( PieceType type ) {
+        ArrayList<GameElement> resultPieces = new ArrayList<GameElement>();
+        
+        for ( GameElement piece : pieces ) {
+            if ( piece.getType() == type ) {
+                resultPieces.add( piece );
+            }
+        }
+        
+        return resultPieces;
+    } 
+    
+    public boolean hasType( PieceType type ) {
+        for ( GameElement piece : pieces ) {
+            if ( piece.getType() == type ) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     public boolean isAvailable ( ) {
@@ -102,39 +148,33 @@ public class Tile {
         return monster;
     }
 
-    public void setMonster(boolean monster) {
-        this.monster = monster;
-    }
-
     public boolean hasPlayer() {
         return player;
-    }
-
-    public void setPlayer(boolean player) {
-        this.player = player;
     }
 
     public boolean hasItem() {
         return item;
     }
-
-    public void setItem(boolean item) {
-        this.item = item;
+    
+    public boolean hasSpecificItem( String name ) {
+        for ( GameElement piece : pieces ) {
+            if ( piece.getName() == name ) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     public boolean hasHazard() {
         return hazard;
     }
 
-    public void setHazard(boolean hazard) {
-        this.hazard = hazard;
-    }
-
     public Coord getPosition() {
         return position;
     }
 
-    public void setPosition(Coord position) {
+    public void setPosition( Coord position ) {
         this.position = position;
     }
 }

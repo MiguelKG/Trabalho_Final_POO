@@ -4,7 +4,9 @@
  */
 package wumpusworld.GameElements;
 
+import WumpusWorld.Board;
 import WumpusWorld.Coord;
+import WumpusWorld.Tile;
 
 /**
  *
@@ -21,6 +23,38 @@ public class GameElement {
         this.type = type;
         this.icon = icon;
         this.position = new Coord();
+    }
+    
+    public void move ( Board board, int direction ) {
+        int x = this.getPosition().x;
+        int y = this.getPosition().y;
+        int newX = x;
+        int newY = y;
+        
+        switch ( direction ) {
+            case 1: // Cima
+                if ( y > 0 ) {
+                    newY--;
+                }
+                break;
+            case 2:
+                if ( y < board.maxY ) {
+                    newY++;
+                }
+                break;
+            case 3:
+                if ( x > 0 ) {
+                    newX--;
+                }
+                break;
+            case 4:
+                if ( x < board.maxX ) {
+                    newX++;
+                }
+                break;
+        }
+        board.grid[ y ][ x ].removePiece( this );
+        board.grid[ newY ][ newX ].addPiece( this );
     }
     
     public PieceType getType() {

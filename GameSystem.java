@@ -5,6 +5,7 @@
 package WumpusWorld;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import wumpusworld.GameElements.*;
@@ -18,6 +19,7 @@ public class GameSystem {
     private Random randomizer;
     private Player player;
     private ArrayList<Monster> monsters;
+    private int debug;
     Scanner entry = new Scanner( System.in );
     
     public GameSystem() {
@@ -25,6 +27,7 @@ public class GameSystem {
         this.randomizer = new Random();
         this.player = new Player( "player" );
         this.monsters = new ArrayList<>();
+        this.debug = 0;
     }
     
     public void setup() {
@@ -59,28 +62,52 @@ public class GameSystem {
     public void run() {
         int op;
         do {
+            System.out.println("\n\n\n");
             board.print();
+            System.out.print( "HP: " + player.getLife() );
+            System.out.println("\n-- Inventário --");
+            int turnPass = 1;
+            float i = 1;
+            for ( Map.Entry<String, Integer> entry : player.getInventory().entrySet() ) {
+                System.out.print( entry.getKey() + " ( " + entry.getValue() + " )" );
+                if ( i / 3 == 0 ) {
+                    System.out.print( "\n" );
+                } else {
+                    System.out.print( "\t" );
+                }
+                i++;
+            }
+            System.out.print("\n----\n");
 
-            System.out.println(
-                "1 - Andar para cima\n"
+            System.out.print(
+                "1 - Andar para cima"
+                + "\t\t"
                 + "2 - Andar para baixo\n"
-                + "3 - Andar para esquerda\n"
+                        
+                + "3 - Andar para esquerda"
+                + "\t\t"
                 + "4 - Andar para direita\n"
-                + "5 - Usar lanterna\n"
+                        
+                + "5 - Usar lanterna"
+                + "\t\t"
                 + "6 - Disparar flecha\n"
+                        
                 + "10 - Sair do jogo\n"
-                + "Digite o número do que deseja fazer"
             );
+            checkSurroundings();
+            System.out.print( "Ação: " );
 
             op = entry.nextInt();
 
             if ( op >= 1 && op <= 4 ) {
-                move ( player, op );
+                player.move ( board, op );
             } else
             if ( op == 5 ) {
+                turnPass = 0;
                 do {
                     System.out.println(
-                        "Iluminar em qual direção?\n"
+                        "-//-\n"
+                        + "Iluminar em qual direção?\n"
                         + "1 - Cima\n"
                         + "2 - Baixo\n"
                         + "3 - Esquerda\n"
@@ -97,7 +124,8 @@ public class GameSystem {
             if ( op == 6 ) { // Incompleto
                 do {
                     System.out.println(
-                        "Disparar em qual direção?\n"
+                        "-//-\n"
+                        + "Disparar em qual direção?\n"
                         + "1 - Cima\n"
                         + "2 - Baixo\n"
                         + "3 - Esquerda\n"
@@ -110,42 +138,83 @@ public class GameSystem {
                         player.useArrow( board, op );
                     }
                 } while ( op < 1 || op > 4 );
+            } else
+            if ( op == 42 ) {
+                this.debug = 1;
+                debugMode();
+                System.out.println( "Modo debug ativado" );
+            }
+            
+            checkMonsterArea( board );
+            collectItems( board );
+            board.grid[ player.getPosition().y ][ player.getPosition().x ].setVisible( true );
+            
+            if ( player.getLife() <= 0) op = 10;
+            
+            if ( turnPass == 1 ) {
+                monsterMovement();
             }
         } while ( op != 10 );
     }
     
-    public void move ( GameElement piece, int direction ) {
-        int x = piece.getPosition().x;
-        int y = piece.getPosition().y;
-        int newX = x;
-        int newY = y;
-        
-        Tile pieceTile = board.grid[ y ][ x ];
-        switch ( direction ) {
-            case 1: // Cima
-                if ( y > 0 ) {
-                    newY--;
-                }
-                break;
-            case 2:
-                if ( y < board.maxY ) {
-                    newY++;
-                }
-                break;
-            case 3:
-                if ( x > 0 ) {
-                    newX--;
-                }
-                break;
-            case 4:
-                if ( x < board.maxX ) {
-                    newX++;
-                }
-                break;
+    private void checkSurroundings() {
+        int x = player.getPosition().x;
+        int y = player.getPosition().y;
+        int foundGold = 0;
+        int foundMonster = 0;
+        if ( y - 1 > 0) {
+            if ( board.grid[ y - 1 ][ x ].hasSpecificItem( "Gold" ) ) foundGold = 1;
+            if ( board.grid[ y - 1 ][ x ].hasMonster() ) foundMonster = 1;
         }
-        board.grid[ y ][ x ].removePiece( piece );
-        if ( piece == player ) board.grid[ newY ][ newX ].setVisible( true );
-        board.grid[ newY ][ newX ].addPiece( piece );
+        if ( y + 1 <= board.maxY ) {
+            if ( board.grid[ y + 1 ][ x ].hasSpecificItem( "Gold" ) ) foundGold = 1;
+            if ( board.grid[ y + 1 ][ x ].hasMonster() ) foundMonster = 1;
+        }
+        if ( x - 1 > 0 ) {
+            if ( board.grid[ y ][ x - 1 ].hasSpecificItem( "Gold" ) ) foundGold = 1;
+            if ( board.grid[ y ][ x - 1 ].hasMonster() ) foundMonster = 1;
+        }
+        if ( x + 1 <= board.maxX ) {
+            if ( board.grid[ y ][ x + 1 ].hasSpecificItem( "Gold" ) ) foundGold = 1;
+            if ( board.grid[ y ][ x + 1 ].hasMonster() ) foundMonster = 1;
+        }
+        if ( foundGold == 1 ) {
+            System.out.println("- Você percebe um brilho estranho no escuro...");
+        }
+        
+        if ( foundMonster == 1 ) {
+            System.out.println("- Você sente um cheiro terrível");
+        }
+    }
+    
+    private void monsterMovement () {
+        
+    }
+    
+    private void checkMonsterArea( Board board ) {
+        int x = player.getPosition().x;
+        int y = player.getPosition().y;
+        Tile playerTile = board.grid[ y ][ x ];
+        
+        ArrayList<GameElement> monsters = playerTile.getPiecesByType( PieceType.MONSTER );
+        
+        for ( GameElement monster : monsters ) {
+            System.out.println( monster.getName() + " ataca!" );
+            player.addHp( 0 - ( ( Monster )monster ).getDamage() );
+        }
+    }
+    
+    private void collectItems ( Board board ) {
+        int x = player.getPosition().x;
+        int y = player.getPosition().y;
+        GameElement item;
+        Tile playerTile = board.grid[ y ][ x ];
+        
+        while( playerTile.hasItem() ) {
+            item = playerTile.removePieceByType( PieceType.ITEM );
+            player.addItem( item.getName() );
+            System.out.println( "Obteve um(a) " + item.getName() + "!" );
+        }
     }
     
     private void createStartPosition( GameElement piece ) {
@@ -169,5 +238,13 @@ public class GameSystem {
         }
         
         board.grid[ y ][ x ].addPiece( piece );
+    }
+    
+    private void debugMode () {
+        for ( int i = 0; i < board.grid.length; i++ ) {
+            for ( int i2 = 0; i2 < board.grid[0].length; i2++ ) {
+                board.grid[ i ][ i2 ].setVisible( true );
+            }
+        }
     }
 }

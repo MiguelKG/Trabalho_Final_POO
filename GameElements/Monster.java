@@ -17,4 +17,12 @@ public class Monster extends GameElement {
         super( name, PieceType.MONSTER, icon );
         this.damage = damage;
     }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public void setDamage( int damage ) {
+        this.damage = damage;
+    }
 }

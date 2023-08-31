@@ -35,46 +35,35 @@ public class Board {
         Tile tile;
         GameElement piece;
         Monster monster;
-                
+        char icon;
+        
         for ( int i = 0; i <= maxY; i++ ) {
-            
-            System.out.print( "  " );
             for ( int i2 = 0; i2 <= maxX; i2++ ) {
+                
                 tile = this.grid[ i ][ i2 ];
                 
                 if ( tile.isVisible() == false ) {
-                    System.out.print( "#" );
+                    icon = '#';
+                } else                
+                if ( tile.hasPlayer() ) {
+                    piece = tile.getPieceByType( PieceType.PLAYER );
+                    icon = piece.getIcon();
                 } else
                 if ( tile.hasMonster() ) {
-                    piece = tile.getPieces().stream()
-                        .filter( x -> x.getType() ==  PieceType.MONSTER )
-                        .findFirst()
-                        .orElse(null);
-                    System.out.print( piece.getIcon() );
-                        
-                } else
-                if ( tile.hasPlayer() ) {
-                    System.out.print( "O" );
+                    piece = tile.getPieceByType( PieceType.MONSTER );
+                    icon = piece.getIcon();
                 } else
                 if ( tile.hasHazard() ) {
-                    piece = tile.getPieces().stream()
-                        .filter( x -> x.getType() ==  PieceType.HAZARD )
-                        .findFirst()
-                        .orElse(null);
-                    System.out.print( piece.getIcon() );
-                    
+                    piece = tile.getPieceByType( PieceType.HAZARD );
+                    icon = piece.getIcon();
                 } else
                 if ( tile.hasItem() ) {
-                    piece = tile.getPieces().stream()
-                        .filter( x -> x.getType() ==  PieceType.ITEM )
-                        .findFirst()
-                        .orElse(null);
-                    System.out.print( piece.getIcon() );
-                    
+                    piece = tile.getPieceByType( PieceType.ITEM );
+                    icon = piece.getIcon();
                 } else {
-                    System.out.print("*" );
+                    icon = '*';
                 }
-                System.out.print( "  " );
+                System.out.print( " " + icon + " " );
             }
             System.out.print( "\n" );
         }
