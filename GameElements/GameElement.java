@@ -37,24 +37,24 @@ public class GameElement {
                     newY--;
                 }
                 break;
-            case 2:
-                if ( y < board.maxY ) {
+            case 2: // Baixo
+                if ( y < board.getMaxY() ) {
                     newY++;
                 }
                 break;
-            case 3:
+            case 3: // Esquerda
                 if ( x > 0 ) {
                     newX--;
                 }
                 break;
-            case 4:
-                if ( x < board.maxX ) {
+            case 4: // Direita
+                if ( x < board.getMaxX() ) {
                     newX++;
                 }
                 break;
         }
-        board.grid[ y ][ x ].removePiece( this );
-        board.grid[ newY ][ newX ].addPiece( this );
+        board.grid()[ y ][ x ].removePiece( this );
+        board.grid()[ newY ][ newX ].addPiece( this );
     }
     
     public PieceType getType() {

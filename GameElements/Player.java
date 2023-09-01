@@ -7,6 +7,7 @@ package wumpusworld.GameElements;
 import WumpusWorld.Board;
 import WumpusWorld.Coord;
 import WumpusWorld.Tile;
+import WumpusWorld.GameSystem;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,14 +26,13 @@ public class Player extends GameElement {
         this.life = 100;
         this.maxLife = this.life;
         this.inventory = new HashMap<String, Integer>(3);
-        inventory.put("Flashlight", 2);
+        inventory.put("Lanterna", 2);
     }
     
-    public void addHp( int val ) {
+    public void addLife( int val ) {
         life += val;
         if ( life <= 0 ) {
             life = 0;
-            System.out.println("Você morreu");
         } else if ( life > maxLife ) {
             life = maxLife;
         }
@@ -72,46 +72,46 @@ public class Player extends GameElement {
         return this.inventory;
     }
     
-    public void useFlashlight ( Board board, int direction ) {
-        if ( this.getItem( "Flashlight" ) <= 0 ) {
-            System.out.println( "Você não possui mais bateria na lanterna!" );
+    public void useFlashlight ( Board board, int direction, GameSystem game ) {
+        if ( this.getItem( "Lanterna" ) <= 0 ) {
+            game.addGameInfo( "Você não possui mais bateria na lanterna!" );
             return;
         }
-        this.useItem( "Flashlight" );
+        this.useItem( "Lanterna" );
         int x = this.getPosition().x;
         int y = this.getPosition().y;
         
         switch( direction ) {
             case 1:
                 while ( y >= 0 ){
-                    board.grid[ y ][ x ].setVisible( true );
+                    board.grid()[ y ][ x ].setVisible( true );
                     y--;
                 }
                 break;
             case 2:
-                while ( y <= board.maxY ){
-                    board.grid[ y ][ x ].setVisible( true );
+                while ( y <= board.getMaxY() ){
+                    board.grid()[ y ][ x ].setVisible( true );
                     y++;
                 }
                 break;
             case 3:
                 while ( x >= 0 ){
-                    board.grid[ y ][ x ].setVisible( true );
+                    board.grid()[ y ][ x ].setVisible( true );
                     x--;
                 }
                 break;
             case 4:
-                while ( x <= board.maxX ){
-                    board.grid[ y ][ x ].setVisible( true );
+                while ( x <= board.getMaxX() ){
+                    board.grid()[ y ][ x ].setVisible( true );
                     x++;
                 }
                 break;
         }
     }
     
-    public void useArrow( Board board, int direction ) {
-        if ( this.getItem( "Wood" ) <= 0 ) {
-            System.out.println( "Você não possui madeira!" );
+    public void useArrow( Board board, int direction, GameSystem game ) {
+        if ( this.getItem( "Madeira" ) <= 0 ) {
+            game.addGameInfo( "Você não possui madeira!" );
             return;
         }
         int x = this.getPosition().x;
@@ -123,20 +123,38 @@ public class Player extends GameElement {
                 if ( y > 0 ) y--;
                 break;
             case 2:
-                if ( y < board.maxY ) y++;
+                if ( y < board.getMaxY() ) y++;
                 break;
             case 3:
                 if ( x > 0 ) x--;
                 break;
             case 4:
-                if ( x < board.maxX ) x++;
+                if ( x < board.getMaxX() ) x++;
                 break;
         }
         if ( x != this.getPosition().x || y != this.getPosition().y ) {
-            this.useItem( "Wood" );
-            if ( board.grid[ y ][ x ].hasMonster() ) {
-                monster = board.grid[ y ][ x ].removePieceByType( PieceType.MONSTER );
-                System.out.println( monster.getName() + " foi morto!" );
+            this.useItem( "Madeira" );
+            if ( board.grid()[ y ][ x ].hasMonster() ) {
+                monster = board.grid()[ y ][ x ].removePieceByType( PieceType.MONSTER );
+                game.addGameInfo( monster.getName() + " foi morto!" );
+            }
+        }
+    }
+    
+    public void stepOnHazard( Board board, GameSystem game ) {
+        Tile playerTile = board.grid()[ this.getPosition().y ][ this.getPosition().x ];
+        
+        for ( GameElement hazard : playerTile.getPiecesByType( PieceType.HAZARD ) ) {
+            if ( hazard.getName() == "Pit" ) {
+                if ( this.getItem( "Madeira" ) > 0 ) {
+                    game.addGameInfo( "Você constrói uma ponte para não cair no poço" );
+                    this.useItem( "Madeira" );
+                    playerTile.removePiece( hazard );
+                } else {
+                    addLife( 0 - ( (Hazard) hazard ).getDamage() );
+                }
+            } else {
+                addLife( 0 - ( (Hazard) hazard ).getDamage() );
             }
         }
     }

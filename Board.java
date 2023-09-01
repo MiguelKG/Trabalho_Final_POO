@@ -14,9 +14,9 @@ import wumpusworld.GameElements.*;
  * @author Miguel-KG
  */
 public class Board {
-    public Tile[][] grid;
-    public int maxX;
-    public int maxY;
+    private Tile[][] grid;
+    private int maxX;
+    private int maxY;
     
     public Board ( int sizeX, int sizeY ) {
         grid = new Tile[ sizeY ][ sizeX ];
@@ -44,10 +44,6 @@ public class Board {
                 
                 if ( tile.isVisible() == false ) {
                     icon = '#';
-                } else                
-                if ( tile.hasPlayer() ) {
-                    piece = tile.getPieceByType( PieceType.PLAYER );
-                    icon = piece.getIcon();
                 } else
                 if ( tile.hasMonster() ) {
                     piece = tile.getPieceByType( PieceType.MONSTER );
@@ -57,9 +53,16 @@ public class Board {
                     piece = tile.getPieceByType( PieceType.HAZARD );
                     icon = piece.getIcon();
                 } else
+                if ( tile.hasPlayer() ) {
+                    piece = tile.getPieceByType( PieceType.PLAYER );
+                    icon = piece.getIcon();
+                } else
                 if ( tile.hasItem() ) {
                     piece = tile.getPieceByType( PieceType.ITEM );
                     icon = piece.getIcon();
+                } else
+                if ( tile.getPosition().x == 0 && tile.getPosition().y == maxY ) {
+                    icon = 'E';
                 } else {
                     icon = '*';
                 }
@@ -68,4 +71,16 @@ public class Board {
             System.out.print( "\n" );
         }
     }
+
+    public Tile[][] grid() {
+        return grid;
+    }
+
+    public int getMaxX() {
+        return maxX;
+    }
+
+    public int getMaxY() {
+        return maxY;
+    }   
 }
