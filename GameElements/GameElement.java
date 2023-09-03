@@ -6,7 +6,6 @@ package wumpusworld.GameElements;
 
 import WumpusWorld.Board;
 import WumpusWorld.Coord;
-import WumpusWorld.Tile;
 
 /**
  *

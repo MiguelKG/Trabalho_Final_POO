@@ -4,8 +4,6 @@
  */
 package WumpusWorld;
 
-import java.util.Random;
-
 /**
  *
  * @author Miguel-KG

@@ -4,6 +4,7 @@
  */
 package WumpusWorld;
 
+import wumpusworld.GUI.GameWindow;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
@@ -21,15 +22,26 @@ public class GameSystem {
     private ArrayList<Monster> monsters;
     private ArrayList<String> gameInfo;
     private int debug;
-    Scanner entry = new Scanner( System.in );
+    private boolean gui;
+    Scanner entry;
     
-    public GameSystem() {
-        this.board = new Board( 15, 15 );
+    public GameSystem( boolean gui ) {
         this.randomizer = new Random();
-        this.player = new Player( "player" );
         this.monsters = new ArrayList<>();
         this.gameInfo = new ArrayList<>();
         this.debug = 0;
+        this.entry = new Scanner( System.in );
+        this.gui = gui;
+    }
+    
+    public void play( ) {
+        setup();
+        if ( gui ) {
+            GameWindow window = new GameWindow();
+            window.create();
+        }
+        run();
+        newGame();
     }
     
     public void addGameInfo( String message ) {
@@ -39,6 +51,12 @@ public class GameSystem {
     public void setup() {
         GameElement element;
         Monster monster;
+        
+        this.board = new Board( 15, 15 );
+        this.player = new Player( "player" );
+        this.debug = 0;
+        monsters.clear();
+        gameInfo.clear();
         
         board.grid()[ board.getMaxY() ][ 0 ].addPiece( player );
         board.grid()[ board.getMaxY() ][ 0 ].setVisible( true );
@@ -116,7 +134,7 @@ public class GameSystem {
                 + "\t\t"
                 + "6 - Disparar flecha\n"
                         
-                + "10 - Sair do jogo\n"
+                + "10 - Terminar jogo\n"
             );
             System.out.print( "Ação: " );
 
@@ -169,8 +187,7 @@ public class GameSystem {
                 this.debug = 1;
                 debugMode();
                 gameInfo.add( "Modo debug ativado" );
-            } else
-            if ( op == 10 ) {
+            } else {
                 turnPass = false;
             }
             
@@ -193,6 +210,22 @@ public class GameSystem {
                 gameWon = checkWinCondition();
             }
         } while ( op != 10 );
+    }
+    
+    public void newGame() {
+        System.out.print( 
+            "Deseja jogar novamente?\n"
+            + "1 - Sim\n"
+            + "2 - Não\n"
+            + "Escolha: "
+        );
+        int op = entry.nextInt();
+        
+        if ( op == 1 ) {
+            play();
+        } else {
+            return;
+        }
     }
     
     boolean checkWinCondition() {

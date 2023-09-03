@@ -5,7 +5,6 @@
 package wumpusworld.GameElements;
 
 import WumpusWorld.Board;
-import WumpusWorld.Coord;
 import java.util.Random;
 
 /**

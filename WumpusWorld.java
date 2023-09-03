@@ -14,9 +14,8 @@ public class WumpusWorld {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        GameSystem game = new GameSystem();
-        game.setup();
-        game.run();
+        GameSystem game = new GameSystem( true );
+        game.play();
     }
     
 }

@@ -5,10 +5,8 @@
 package wumpusworld.GameElements;
 
 import WumpusWorld.Board;
-import WumpusWorld.Coord;
 import WumpusWorld.Tile;
 import WumpusWorld.GameSystem;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -136,7 +134,7 @@ public class Player extends GameElement {
             this.useItem( "Madeira" );
             if ( board.grid()[ y ][ x ].hasMonster() ) {
                 monster = board.grid()[ y ][ x ].removePieceByType( PieceType.MONSTER );
-                game.addGameInfo( monster.getName() + " foi morto!" );
+                game.addGameInfo( "Você ouve um grito aterrorizante" );
             }
         }
     }
