@@ -25,16 +25,16 @@ public class GameSystem implements ActionListener {
     private Player player;
     private ArrayList<Monster> monsters;
     private ArrayList<String> gameInfo;
-    private int debug;
+    private boolean debug;
     private boolean gui;
     private GameWindow window;
     Scanner entry;
     
-    public GameSystem( boolean gui ) {
+    public GameSystem( boolean gui, boolean debug ) {
         this.randomizer = new Random();
         this.monsters = new ArrayList<>();
         this.gameInfo = new ArrayList<>();
-        this.debug = 0;
+        this.debug = debug;
         this.entry = new Scanner( System.in );
         this.gui = gui;
     }
@@ -60,7 +60,6 @@ public class GameSystem implements ActionListener {
         this.board = new Board( sizeY, sizeX );
         
         this.player = new Player( "player" );
-        this.debug = 0;
         monsters.clear();
         gameInfo.clear();
         
@@ -89,6 +88,9 @@ public class GameSystem implements ActionListener {
         createStartPosition( monster );
         
         checkSurroundings();
+        if ( this.debug ) {
+            debugMode();
+        }
         if ( gui ) {
             if ( window != null ) window.dispose();
             GUIHelper.reset();
@@ -217,12 +219,6 @@ public class GameSystem implements ActionListener {
                         resultItemUse = true;
                     }
                 } while ( op < 1 || op > 4 );
-            } else
-            if ( op == 42 ) {
-                turnPass = false;
-                this.debug = 1;
-                debugMode();
-                gameInfo.add( "Modo debug ativado" );
             } else {
                 turnPass = false;
             }
