@@ -7,6 +7,7 @@ package wumpusworld.GameElements;
 import WumpusWorld.Board;
 import WumpusWorld.Tile;
 import WumpusWorld.GameSystem;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ public class Player extends GameElement {
         this.maxLife = this.life;
         this.inventory = new HashMap<String, Integer>(3);
         inventory.put("Lanterna", 2);
+        this.getBoardPiece().setBackground( Color.BLUE );
     }
     
     public void addLife( int val ) {
@@ -70,10 +72,10 @@ public class Player extends GameElement {
         return this.inventory;
     }
     
-    public void useFlashlight ( Board board, int direction, GameSystem game ) {
+    public boolean useFlashlight ( Board board, int direction, GameSystem game ) {
         if ( this.getItem( "Lanterna" ) <= 0 ) {
             game.addGameInfo( "Você não possui mais bateria na lanterna!" );
-            return;
+            return false;
         }
         this.useItem( "Lanterna" );
         int x = this.getPosition().x;
@@ -105,16 +107,17 @@ public class Player extends GameElement {
                 }
                 break;
         }
+        
+        return true;
     }
     
-    public void useArrow( Board board, int direction, GameSystem game ) {
+    public boolean useArrow( Board board, int direction, GameSystem game ) {
         if ( this.getItem( "Madeira" ) <= 0 ) {
             game.addGameInfo( "Você não possui madeira!" );
-            return;
+            return false;
         }
         int x = this.getPosition().x;
         int y = this.getPosition().y;
-        GameElement monster;
         
         switch( direction ) {
             case 1:
@@ -133,10 +136,13 @@ public class Player extends GameElement {
         if ( x != this.getPosition().x || y != this.getPosition().y ) {
             this.useItem( "Madeira" );
             if ( board.grid()[ y ][ x ].hasMonster() ) {
-                monster = board.grid()[ y ][ x ].removePieceByType( PieceType.MONSTER );
+                game.addGameInfo( board.grid()[ y ][ x ].removePieceByType( PieceType.MONSTER ).toString() );
+                
                 game.addGameInfo( "Você ouve um grito aterrorizante" );
             }
         }
+        
+        return true;
     }
     
     public void stepOnHazard( Board board, GameSystem game ) {

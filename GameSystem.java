@@ -4,18 +4,21 @@
  */
 package WumpusWorld;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import wumpusworld.GUI.GameWindow;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
+import javax.swing.SwingUtilities;
 import wumpusworld.GameElements.*;
 
 /**
  *
  * @author Miguel-KG
  */
-public class GameSystem {
+public class GameSystem implements ActionListener {
     private Board board;
     private Random randomizer;
     private Player player;
@@ -23,6 +26,7 @@ public class GameSystem {
     private ArrayList<String> gameInfo;
     private int debug;
     private boolean gui;
+    private GameWindow window;
     Scanner entry;
     
     public GameSystem( boolean gui ) {
@@ -37,10 +41,10 @@ public class GameSystem {
     public void play( ) {
         setup();
         if ( gui ) {
-            GameWindow window = new GameWindow();
-            window.create();
+            window.create( board );
+        } else {
+            run();
         }
-        run();
         newGame();
     }
     
@@ -49,10 +53,16 @@ public class GameSystem {
     }
     
     public void setup() {
+        int sizeX = 15;
+        int sizeY = 15;
         GameElement element;
         Monster monster;
         
-        this.board = new Board( 15, 15 );
+        if ( gui ) {
+            this.window = new GameWindow( this, sizeY, sizeX );
+        }
+        this.board = new Board( sizeY, sizeX );
+        
         this.player = new Player( "player" );
         this.debug = 0;
         monsters.clear();
@@ -85,11 +95,19 @@ public class GameSystem {
     
     public void printInfo( ) {
         float i = 1;
+        
+        if ( gui ) {
+            window.resetInventory();
+            window.printInventoryItem( "HP: " + player.getLife() );
+        }
         System.out.println( "HP: " + player.getLife() );
 
         System.out.println("-- Inventário --");
         for ( Map.Entry<String, Integer> entry : player.getInventory().entrySet() ) {
             System.out.print( entry.getKey() + " ( " + entry.getValue() + " )" );
+            if ( gui ) {
+                window.printInventoryItem( entry.getKey() + " ( " + entry.getValue() + " )" );
+            }
             if ( i / 3 != 0 ) {
                 System.out.print( "\t" );
             } else {
@@ -98,10 +116,13 @@ public class GameSystem {
             i++;
         }
         System.out.println("\n----");
-        
+        if ( gui ) window.resetLog();
         if ( gameInfo.size() > 0 ) {
             for ( String message : gameInfo ) {
                 System.out.println( "--> " + message );
+                if ( gui ) {
+                    window.log( message );
+                }
             }
             gameInfo.clear();
         }
@@ -109,12 +130,19 @@ public class GameSystem {
     
     public void run() {
         int op;
+        boolean resultItemUse = true;
         boolean turnPass;
         boolean playerDead = false;
         boolean gameWon = false;
         do {
             turnPass = true;
             board.print();
+            
+            if ( gui ) {
+                window.boardDraw( board );
+                SwingUtilities.updateComponentTreeUI(window );
+            }
+            
             printInfo( );
             
             if ( playerDead || gameWon ) {
@@ -159,7 +187,11 @@ public class GameSystem {
                     if ( op < 1 || op > 4 ) {
                         System.out.println( "Valor inválido" );
                     } else {
-                        player.useFlashlight( board, op, this );
+                        resultItemUse = player.useFlashlight( board, op, this );
+                    }
+                    if ( !resultItemUse ) {
+                        turnPass = false;
+                        resultItemUse = true;
                     }
                 } while ( op < 1 || op > 4 );
             } else
@@ -178,7 +210,11 @@ public class GameSystem {
                     if ( op < 1 || op > 4 ) {
                         System.out.println( "Valor inválido" );
                     } else {
-                        player.useArrow( board, op, this );
+                        resultItemUse = player.useArrow( board, op, this );
+                    }
+                    if ( !resultItemUse ) {
+                        turnPass = false;
+                        resultItemUse = true;
                     }
                 } while ( op < 1 || op > 4 );
             } else
@@ -377,5 +413,84 @@ public class GameSystem {
                 board.grid()[ i ][ i2 ].setVisible( true );
             }
         }
+    }
+    
+    @Override
+    public void actionPerformed( ActionEvent event ){
+        String action = event.getActionCommand();
+        int op = -1;
+        
+        boolean turnPass = true;
+
+        if ( GUIHelper.isPlayerDead() || GUIHelper.isGameWon() ) {
+            return;
+        }
+        
+        if ( action.equals("Up") ) {
+            op = 1;
+        } else
+        if ( action.equals( "Down" ) ) {
+            op = 2;
+        } else
+        if ( action.equals( "Left" ) ) {
+            op = 3;
+        } else
+        if ( action.equals( "Right" ) ) {
+            op = 4;
+        } else
+        if ( GUIHelper.isArrowMode() || GUIHelper.isFlashlightMode() ) {
+            turnPass = false;
+            GUIHelper.setArrowMode( false );
+            GUIHelper.setFlashlightMode( false );
+        } else
+        if ( action.equals( "Flashlight" ) ) {
+            GUIHelper.setFlashlightMode( true );
+            turnPass = false;
+            addGameInfo( "Escolha a direção da lanterna:" );
+            addGameInfo("(Botões não direcionais cancelam a ação)" );
+        } else
+        if ( action.equals( "Arrow" ) ) {
+            GUIHelper.setArrowMode( true );
+            turnPass = false;
+            addGameInfo( "Escolha a direção da flecha:" );
+            addGameInfo("(Botões não direcionais cancelam a ação)" );
+        }
+        
+        if ( op != -1 ) {
+            if ( GUIHelper.isFlashlightMode() ) {
+                player.useFlashlight( board, op, this );
+                GUIHelper.setFlashlightMode( false );
+            } else
+            if ( GUIHelper.isArrowMode() ) {
+                player.useArrow( board, op, this );
+                GUIHelper.setArrowMode( false );
+            } else {
+                player.move( board, op );
+            }
+        }
+        
+        if ( turnPass ) {
+            collectItems( board );
+            board.grid()[ player.getPosition().y ][ player.getPosition().x ].setVisible( true );
+            checkSurroundings();
+
+            if ( !checkMonsterDamage( board ) && !checkHazardDamage( board ) ) {
+                monsterMovement();
+                GUIHelper.setPlayerDead( checkMonsterDamage( board ) );
+            } else {
+                GUIHelper.setPlayerDead( true );
+            }
+
+            if ( GUIHelper.isPlayerDead() ) {
+                turnPass = false;
+            }
+
+            GUIHelper.setGameWon( checkWinCondition() );
+        }
+        
+        board.print();
+        window.boardDraw( board );
+        SwingUtilities.updateComponentTreeUI(window );
+        printInfo( );
     }
 }

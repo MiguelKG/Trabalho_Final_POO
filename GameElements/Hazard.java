@@ -4,6 +4,8 @@
  */
 package wumpusworld.GameElements;
 
+import java.awt.Color;
+
 /**
  *
  * @author Miguel-KG
@@ -14,6 +16,7 @@ public class Hazard extends GameElement {
     public Hazard ( String name, char icon, int damage ) {
         super( name, PieceType.HAZARD, icon );
         this.damage = damage;
+        this.getBoardPiece().setBackground( Color.magenta );
     }
 
     public int getDamage() {

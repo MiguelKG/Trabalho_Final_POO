@@ -4,7 +4,9 @@
  */
 package WumpusWorld;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
+import javax.swing.JPanel;
 import wumpusworld.GameElements.*;
 
 /**
@@ -19,6 +21,7 @@ public class Tile {
     private boolean player;
     private boolean item;
     private boolean hazard;
+    private JPanel cell;
     
     public Tile( int x, int y) {
         this.position = new Coord( x, y );
@@ -28,6 +31,8 @@ public class Tile {
         this.player = false;
         this.item = false;
         this.hazard = false;
+        this.cell = new JPanel();
+        this.cell.setPreferredSize( new Dimension( 20, 20 ) );
     }
     
     public boolean isVisible () {
@@ -176,5 +181,13 @@ public class Tile {
 
     public void setPosition( Coord position ) {
         this.position = position;
+    }
+
+    public JPanel getCell() {
+        return cell;
+    }
+
+    public void setCell( JPanel cell ) {
+        this.cell = cell;
     }
 }

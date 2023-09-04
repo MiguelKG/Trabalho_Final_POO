@@ -5,6 +5,7 @@
 package wumpusworld.GameElements;
 
 import WumpusWorld.Board;
+import java.awt.Color;
 import java.util.Random;
 
 /**
@@ -24,6 +25,7 @@ public class Monster extends GameElement {
         this.randomizer = new Random();
         this.movement = movement;
         this.deviation = deviation;
+        this.getBoardPiece().setBackground( Color.RED );
     }
 
     public int getDamage() {

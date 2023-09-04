@@ -4,6 +4,7 @@
  */
 package WumpusWorld;
 
+import wumpusworld.GUI.GameWindow;
 import wumpusworld.GameElements.*;
 
 /**
@@ -79,5 +80,5 @@ public class Board {
 
     public int getMaxY() {
         return maxY;
-    }   
+    }
 }

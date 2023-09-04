@@ -6,6 +6,8 @@ package wumpusworld.GameElements;
 
 import WumpusWorld.Board;
 import WumpusWorld.Coord;
+import java.awt.Color;
+import javax.swing.JPanel;
 
 /**
  *
@@ -16,12 +18,15 @@ public class GameElement {
     private PieceType type;
     private char icon;
     private Coord position;
+    private JPanel boardPiece;
     
     public GameElement ( String name, PieceType type, char icon ) {
         this.name = name;
         this.type = type;
         this.icon = icon;
         this.position = new Coord();
+        this.boardPiece = new JPanel();
+        this.boardPiece.setBackground( Color.YELLOW );
     }
     
     public void move ( Board board, int direction ) {
@@ -82,5 +87,13 @@ public class GameElement {
 
     public void setPosition(Coord position) {
         this.position = position;
-    }    
+    }
+
+    public JPanel getBoardPiece() {
+        return boardPiece;
+    }
+
+    public void setBoardPiece(JPanel boardPiece) {
+        this.boardPiece = boardPiece;
+    }
 }
