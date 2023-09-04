@@ -14,12 +14,19 @@ public class GUIHelper {
     private static boolean flashlightMode = false;
     private static boolean arrowMode = false;
     
+    public static void reset() {
+        playerDead = false;
+        gameWon = false;
+        flashlightMode = false;
+        arrowMode = false;
+    }
+    
     public static boolean isPlayerDead() {
         return playerDead;
     }
 
     public static void setPlayerDead( boolean playerDead ) {
-        playerDead = playerDead;
+        GUIHelper.playerDead = playerDead;
     }
 
     public static boolean isGameWon() {
@@ -27,7 +34,7 @@ public class GUIHelper {
     }
 
     public static void setGameWon( boolean gameWon ) {
-        gameWon = gameWon;
+        GUIHelper.gameWon = gameWon;
     }
 
     public static boolean isFlashlightMode() {

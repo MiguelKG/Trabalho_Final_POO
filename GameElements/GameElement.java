@@ -19,14 +19,17 @@ public class GameElement {
     private char icon;
     private Coord position;
     private JPanel boardPiece;
+    private Color color;
     
-    public GameElement ( String name, PieceType type, char icon ) {
+    public GameElement ( String name, PieceType type, char icon, Color color ) {
         this.name = name;
         this.type = type;
         this.icon = icon;
+        this.color = color;
         this.position = new Coord();
         this.boardPiece = new JPanel();
-        this.boardPiece.setBackground( Color.YELLOW );
+        this.boardPiece.setBackground( color );
+        this.getBoardPiece().setBackground( color );
     }
     
     public void move ( Board board, int direction ) {

@@ -21,12 +21,11 @@ public class Player extends GameElement {
     private Map<String, Integer> inventory;
     
     public Player( String name ) {
-        super( name, PieceType.PLAYER, 'O' );
+        super( name, PieceType.PLAYER, 'O', Color.BLUE );
         this.life = 100;
         this.maxLife = this.life;
         this.inventory = new HashMap<String, Integer>(3);
         inventory.put("Lanterna", 2);
-        this.getBoardPiece().setBackground( Color.BLUE );
     }
     
     public void addLife( int val ) {
@@ -52,12 +51,13 @@ public class Player extends GameElement {
         }
     }
     
-    public void addItem ( String item ) {
+    public void addItem ( String item, GameSystem game ) {
         if ( inventory.containsKey( item ) ) {
             inventory.put( item, inventory.get( item ) + 1 );
         } else {
             inventory.put( item, 1 );
         }
+        game.addGameInfo( "Obteve um(a) " + item + "!" );
     }
     
     public int getItem ( String item ) {
@@ -136,7 +136,6 @@ public class Player extends GameElement {
         if ( x != this.getPosition().x || y != this.getPosition().y ) {
             this.useItem( "Madeira" );
             if ( board.grid()[ y ][ x ].hasMonster() ) {
-                game.addGameInfo( board.grid()[ y ][ x ].removePieceByType( PieceType.MONSTER ).toString() );
                 
                 game.addGameInfo( "Você ouve um grito aterrorizante" );
             }

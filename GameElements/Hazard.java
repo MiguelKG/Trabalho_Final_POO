@@ -13,10 +13,9 @@ import java.awt.Color;
 public class Hazard extends GameElement {
     private int damage;
     
-    public Hazard ( String name, char icon, int damage ) {
-        super( name, PieceType.HAZARD, icon );
+    public Hazard ( String name, char icon, Color color, int damage ) {
+        super( name, PieceType.HAZARD, icon, color );
         this.damage = damage;
-        this.getBoardPiece().setBackground( Color.magenta );
     }
 
     public int getDamage() {

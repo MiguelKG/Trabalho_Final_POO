@@ -4,6 +4,7 @@
  */
 package WumpusWorld;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import wumpusworld.GUI.GameWindow;
@@ -40,12 +41,10 @@ public class GameSystem implements ActionListener {
     
     public void play( ) {
         setup();
-        if ( gui ) {
-            window.create( board );
-        } else {
+        if ( !gui ) {
             run();
+            newGame();
         }
-        newGame();
     }
     
     public void addGameInfo( String message ) {
@@ -58,9 +57,6 @@ public class GameSystem implements ActionListener {
         GameElement element;
         Monster monster;
         
-        if ( gui ) {
-            this.window = new GameWindow( this, sizeY, sizeX );
-        }
         this.board = new Board( sizeY, sizeX );
         
         this.player = new Player( "player" );
@@ -72,25 +68,37 @@ public class GameSystem implements ActionListener {
         board.grid()[ board.getMaxY() ][ 0 ].setVisible( true );
         
         for ( int i = 0; i < 5; i++ ) {
-            element = new Hazard( "Pit", 'P', 100 );
+            element = new Hazard( "Pit", 'P', Color.MAGENTA, 100 );
             createStartPosition( element );
         }
         
         for ( int i = 0; i < 2; i++ ) {
-            element = new GameElement( "Madeira", PieceType.ITEM, 'Y' );
+            element = new GameElement( "Madeira", PieceType.ITEM, 'Y', Color.decode( "#472915" ) );
             createStartPosition( element );
         }
         
-        element = new GameElement( "Ouro", PieceType.ITEM, 'G' );
+        element = new GameElement( "Ouro", PieceType.ITEM, 'G', Color.YELLOW );
         createStartPosition( element );
         
-        monster = new Monster( "Wumpus", 'W', 100, 1, 0 );
+        monster = new Monster( "Wumpus", 'W', Color.RED, 100, 1, 0 );
         this.monsters.add( monster );
         createStartPosition( monster );
         
-        monster = new Monster( "Monstro ???", 'M', 50, 2, 1 );
+        monster = new Monster( "Monstro ???", 'M', Color.decode( "#ff5e00" ), 50, 2, 1 );
         this.monsters.add( monster );
         createStartPosition( monster );
+        
+        checkSurroundings();
+        if ( gui ) {
+            if ( window != null ) window.dispose();
+            GUIHelper.reset();
+            this.window = new GameWindow( this, sizeY, sizeX );
+            window.create( board );
+            window.boardDraw( board );
+        } else {
+            board.print();
+        }
+        printInfo();
     }
     
     public void printInfo( ) {
@@ -136,14 +144,6 @@ public class GameSystem implements ActionListener {
         boolean gameWon = false;
         do {
             turnPass = true;
-            board.print();
-            
-            if ( gui ) {
-                window.boardDraw( board );
-                SwingUtilities.updateComponentTreeUI(window );
-            }
-            
-            printInfo( );
             
             if ( playerDead || gameWon ) {
                 return;
@@ -241,10 +241,13 @@ public class GameSystem implements ActionListener {
                 
                 if ( playerDead ) {
                     turnPass = false;
+                } else {
+                    gameWon = checkWinCondition();
                 }
-                
-                gameWon = checkWinCondition();
             }
+            
+            board.print();
+            printInfo( );
         } while ( op != 10 );
     }
     
@@ -379,8 +382,7 @@ public class GameSystem implements ActionListener {
         
         while( playerTile.hasItem() ) {
             item = playerTile.removePieceByType( PieceType.ITEM );
-            player.addItem( item.getName() );
-            gameInfo.add( "Obteve um(a) " + item.getName() + "!" );
+            player.addItem( item.getName(), this );
         }
     }
     
@@ -417,20 +419,35 @@ public class GameSystem implements ActionListener {
     
     @Override
     public void actionPerformed( ActionEvent event ){
+        
         String action = event.getActionCommand();
         int op = -1;
         
         boolean turnPass = true;
 
         if ( GUIHelper.isPlayerDead() || GUIHelper.isGameWon() ) {
+            addGameInfo( "Deseja jogar novamente?" );
+            addGameInfo( "Cima - Sim" );
+            addGameInfo( "Baixo - Não" );
+            
+            if ( action.equals("Up") ) {
+                play();
+            } else
+            if ( action.equals( "Down" ) ) {
+                window.dispose();
+            }
             return;
         }
         
         if ( action.equals("Up") ) {
+            System.out.println("Saas");
             op = 1;
         } else
         if ( action.equals( "Down" ) ) {
             op = 2;
+        } else
+        if ( GUIHelper.isPlayerDead() || GUIHelper.isGameWon() ) {
+            
         } else
         if ( action.equals( "Left" ) ) {
             op = 3;
@@ -458,11 +475,15 @@ public class GameSystem implements ActionListener {
         
         if ( op != -1 ) {
             if ( GUIHelper.isFlashlightMode() ) {
-                player.useFlashlight( board, op, this );
+                if ( !player.useFlashlight( board, op, this ) ) {
+                    turnPass = false;
+                }
                 GUIHelper.setFlashlightMode( false );
             } else
             if ( GUIHelper.isArrowMode() ) {
-                player.useArrow( board, op, this );
+                if ( !player.useArrow( board, op, this ) ) {
+                    turnPass = false;
+                }
                 GUIHelper.setArrowMode( false );
             } else {
                 player.move( board, op );
@@ -476,16 +497,21 @@ public class GameSystem implements ActionListener {
 
             if ( !checkMonsterDamage( board ) && !checkHazardDamage( board ) ) {
                 monsterMovement();
+                
                 GUIHelper.setPlayerDead( checkMonsterDamage( board ) );
             } else {
                 GUIHelper.setPlayerDead( true );
             }
-
-            if ( GUIHelper.isPlayerDead() ) {
-                turnPass = false;
+            
+            if ( !GUIHelper.isPlayerDead() ) {
+                GUIHelper.setGameWon( checkWinCondition() );
             }
-
-            GUIHelper.setGameWon( checkWinCondition() );
+        }
+        
+        if ( GUIHelper.isPlayerDead() || GUIHelper.isGameWon() ) {
+            addGameInfo( "Deseja jogar novamente?" );
+            addGameInfo( "Cima - Sim" );
+            addGameInfo( "Baixo - Não" );
         }
         
         board.print();

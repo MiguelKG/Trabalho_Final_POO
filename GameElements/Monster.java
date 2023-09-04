@@ -19,13 +19,12 @@ public class Monster extends GameElement {
     private int movement;
     private int deviation;
     
-    public Monster( String name, char icon, int damage, int movement, int deviation ) {
-        super( name, PieceType.MONSTER, icon );
+    public Monster( String name, char icon, Color color, int damage, int movement, int deviation ) {
+        super( name, PieceType.MONSTER, icon, color );
         this.damage = damage;
         this.randomizer = new Random();
         this.movement = movement;
         this.deviation = deviation;
-        this.getBoardPiece().setBackground( Color.RED );
     }
 
     public int getDamage() {
