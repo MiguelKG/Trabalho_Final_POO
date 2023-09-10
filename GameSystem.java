@@ -436,7 +436,6 @@ public class GameSystem implements ActionListener {
         }
         
         if ( action.equals("Up") ) {
-            System.out.println("Saas");
             op = 1;
         } else
         if ( action.equals( "Down" ) ) {
