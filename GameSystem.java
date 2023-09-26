@@ -327,6 +327,10 @@ public class GameSystem implements ActionListener {
         }
     }
     
+    public ArrayList<Monster> getMonsters() {
+        return this.monsters;
+    }
+    
     private boolean checkMonsterDamage( Board board ) {
         int x = player.getPosition().x;
         int y = player.getPosition().y;
