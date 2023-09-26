@@ -136,7 +136,10 @@ public class Player extends GameElement {
         if ( x != this.getPosition().x || y != this.getPosition().y ) {
             this.useItem( "Madeira" );
             if ( board.grid()[ y ][ x ].hasMonster() ) {
-                
+                for ( GameElement monster : board.grid()[ y ][ x ].getPiecesByType( PieceType.MONSTER ) ) {
+                    System.out.println( monster.getName() );
+                    board.grid()[ y ][ x ].removePiece( monster );
+                }
                 game.addGameInfo( "Você ouve um grito aterrorizante" );
             }
         }

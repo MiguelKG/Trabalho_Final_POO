@@ -226,10 +226,10 @@ public class GameSystem implements ActionListener {
             if ( turnPass ) {
                 collectItems( board );
                 board.grid()[ player.getPosition().y ][ player.getPosition().x ].setVisible( true );
-                checkSurroundings();
                 
                 if ( !checkMonsterDamage( board ) && !checkHazardDamage( board ) ) {
                     monsterMovement();
+                    checkSurroundings();
                     playerDead = checkMonsterDamage( board );
                 } else {
                     playerDead = true;
@@ -283,7 +283,7 @@ public class GameSystem implements ActionListener {
         int foundHazard = 0;
         Tile position = board.grid()[ 0 ][ 0 ];
         
-        if ( y - 1 > 0) {
+        if ( y - 1 >= 0) {
             position = board.grid()[ y - 1 ][ x ];
             if ( position.hasSpecificItem( "Ouro" ) ) foundGold = 1;
             if ( position.hasMonster() ) foundMonster = 1;
@@ -295,7 +295,7 @@ public class GameSystem implements ActionListener {
             if ( position.hasMonster() ) foundMonster = 1;
             if ( position.hasHazard() ) foundHazard = 1;
         }
-        if ( x - 1 > 0 ) {
+        if ( x - 1 >= 0 ) {
             position = board.grid()[ y ][ x - 1 ];
             if ( position.hasSpecificItem( "Ouro" ) ) foundGold = 1;
             if ( position.hasMonster() ) foundMonster = 1;
@@ -337,10 +337,6 @@ public class GameSystem implements ActionListener {
         for ( GameElement monster : monsters ) {
             gameInfo.add( monster.getName() + " ataca!" );
             player.addLife( 0 - ( ( Monster )monster ).getDamage() );
-        }
-        
-        if ( playerTile.hasHazard() ) {
-            player.stepOnHazard( board, this );
         }
         
         if ( player.getLife() <= 0 ) {
@@ -470,9 +466,8 @@ public class GameSystem implements ActionListener {
         
         if ( op != -1 ) {
             if ( GUIHelper.isFlashlightMode() ) {
-                if ( !player.useFlashlight( board, op, this ) ) {
-                    turnPass = false;
-                }
+                player.useFlashlight( board, op, this );
+                turnPass = false;
                 GUIHelper.setFlashlightMode( false );
             } else
             if ( GUIHelper.isArrowMode() ) {
@@ -488,10 +483,10 @@ public class GameSystem implements ActionListener {
         if ( turnPass ) {
             collectItems( board );
             board.grid()[ player.getPosition().y ][ player.getPosition().x ].setVisible( true );
-            checkSurroundings();
 
             if ( !checkMonsterDamage( board ) && !checkHazardDamage( board ) ) {
                 monsterMovement();
+                checkSurroundings();
                 
                 GUIHelper.setPlayerDead( checkMonsterDamage( board ) );
             } else {
